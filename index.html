@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
+  <title>Xplorer España | Ciudades Asequibles para Vivir y Comprar Piso</title>
+  <meta name="description" content="Descubre y explora en un mapa interactivo las ciudades de España donde comprar piso es barato, con datos detallados de demografía, hospitales, negocios, mercados y empleo.">
+  <meta name="referrer" content="no-referrer">
+  
+  <!-- Configuración Móvil y PWA -->
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="format-detection" content="telephone=no">
+  
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  
+  <!-- Estilos propios -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🇪🇸</text></svg>">
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- BARRA SUPERIOR DE NAVEGACIÓN -->
+    <header class="navbar">
+      <div class="nav-left">
+        <a href="#" class="logo-container">
+          <div class="logo-badge">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
+          <div class="logo-text-group">
+            <div class="logo-title">
+              Xplorer <span class="logo-highlight">ESP</span>
+            </div>
+            <div class="logo-subtitle">
+              Vivienda Asequible & Calidad de Vida
+            </div>
+          </div>
+        </a>
+
+        <!-- Buscador en cabecera (Desktop / Tablet) -->
+        <div class="nav-search">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+          </svg>
+          <input type="search" id="search-input" placeholder="Buscar ciudad, provincia o servicio..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+      </div>
+
+      <!-- Herramientas y Modos de Vista -->
+      <div class="nav-actions">
+        
+        <!-- Botón Comparador -->
+        <button id="btn-open-comparator" class="btn-outline btn-comparator" title="Abrir comparador de ciudades">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="m21 16 0 5-5 0"/><path d="M15 15l6 6"/><path d="M4 4l5 5"/>
+          </svg>
+          <span class="btn-label">Comparar</span>
+        </button>
+
+        <!-- Selector de Vistas -->
+        <div class="view-switcher" role="group" aria-label="Selector de vista">
+          <button class="view-btn active" data-view="split" title="Vista Dividida (Tarjetas + Mapa)" aria-label="Vista Dividida">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/>
+            </svg>
+            <span class="view-btn-label">Dividida</span>
+          </button>
+          <button class="view-btn" data-view="grid" title="Vista Cuadrícula de Tarjetas" aria-label="Vista Cuadrícula">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/>
+            </svg>
+            <span class="view-btn-label">Cuadrícula</span>
+          </button>
+          <button class="view-btn" data-view="map" title="Vista Mapa Completo" aria-label="Vista Mapa">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/>
+            </svg>
+            <span class="view-btn-label">Mapa</span>
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- BARRA DE FILTROS AVANZADOS -->
+    <section class="filter-bar" aria-label="Filtros de búsqueda">
+      
+      <!-- Buscador exclusivo para móviles (<768px) -->
+      <div class="mobile-search-wrapper">
+        <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>
+        </svg>
+        <input type="search" id="mobile-search-input" placeholder="Buscar ciudad, provincia o servicio..." autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+      </div>
+
+      <!-- Desplegables de filtros principales -->
+      <div class="filter-selects-container">
+        <!-- Filtro Precio m² -->
+        <select id="filter-price" class="filter-select" aria-label="Filtrar por precio por metro cuadrado">
+          <option value="all">Precio m²: Todos los rangos</option>
+          <option value="600">Menos de 600 €/m² (Económico)</option>
+          <option value="800">Menos de 800 €/m²</option>
+          <option value="1000">Menos de 1.000 €/m²</option>
+          <option value="1300">Menos de 1.300 €/m²</option>
+        </select>
+
+        <!-- Filtro Comunidad Autónoma -->
+        <select id="filter-region" class="filter-select" aria-label="Filtrar por Comunidad Autónoma">
+          <option value="all">Todas las Comunidades</option>
+        </select>
+
+        <!-- Filtro Ordenar Por -->
+        <select id="sort-select" class="filter-select" aria-label="Ordenar ciudades">
+          <option value="price-asc">Ordenar: Más barato primero (€/m²)</option>
+          <option value="price-desc">Ordenar: Mayor precio (€/m²)</option>
+          <option value="pop-desc">Ordenar: Mayor población</option>
+          <option value="quality-desc">Ordenar: Calidad de vida estimada</option>
+        </select>
+      </div>
+
+      <div class="filter-divider"></div>
+
+      <!-- Filtros Rápidos con scroll táctil (Chips) -->
+      <div class="filter-chips-container" role="toolbar" aria-label="Filtros rápidos de equipamiento">
+        <button class="filter-chip" data-filter="ave">
+          <span>🚄</span> Conexión AVE
+        </button>
+        <button class="filter-chip" data-filter="hospital">
+          <span>🏥</span> Hospital General
+        </button>
+        <button class="filter-chip" data-filter="coastal">
+          <span>🏖️</span> Costa / Cerca Playa
+        </button>
+        <button class="filter-chip" data-filter="favs">
+          <span>❤️</span> Favoritos (<span id="fav-counter">0</span>)
+        </button>
+      </div>
+
+    </section>
+
+    <!-- CONTENEDOR PRINCIPAL (SPLIT: LISTA + MAPA) -->
+    <main class="main-content view-split-mode">
+      
+      <!-- Panel Izquierdo: Catálogo de Ciudades -->
+      <section class="split-left">
+        <div class="results-header">
+          <div id="results-count" class="results-count-text">
+            Cargando ciudades...
+          </div>
+          <div class="results-hint-text">
+            💡 Toca una tarjeta para ver ficha o en el mapa para ubicar.
+          </div>
+        </div>
+
+        <!-- Grid de Tarjetas de Ciudades -->
+        <div class="cards-grid" id="cities-grid">
+          <!-- Las tarjetas se generan dinámicamente con JavaScript -->
+        </div>
+
+        <!-- Footer / Notas metodológicas -->
+        <footer class="app-footer">
+          <p><strong>Xplorer España</strong> — Datos de vivienda basados en análisis de precios de compraventa reales (€/m² y pisos tipo de 85 m²), censos oficiales de población (INE), red de hospitales del Sistema Nacional de Salud e infraestructuras de transporte (Adif/Renfe).</p>
+          <p style="margin-top: 6px;">Simulación hipotecaria informativa orientativa calculada al 2.8% fijo a 25 años con aportación del 20% de fondos propios.</p>
+        </footer>
+      </section>
+
+      <!-- Panel Derecho: Mapa Interactivo de España -->
+      <section class="split-right">
+        <div id="map"></div>
+      </section>
+
+    </main>
+
+    <!-- Botón Flotante para Móviles (FAB) para alternar Lista / Mapa -->
+    <button id="mobile-view-fab" class="mobile-fab" aria-label="Alternar entre vista de lista y mapa">
+      <span class="fab-icon">🗺️</span>
+      <span class="fab-text">Ver Mapa</span>
+    </button>
+
+  </div>
+
+  <!-- MODAL: FICHA DETALLADA DE LA CIUDAD -->
+  <div class="modal-overlay" id="city-detail-modal">
+    <div class="modal-container">
+      <button class="modal-close-btn" title="Cerrar ficha" aria-label="Cerrar ficha">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div id="modal-dynamic-content">
+        <!-- Rellenado dinámicamente por CityModalManager -->
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: COMPARADOR DE CIUDADES -->
+  <div class="modal-overlay" id="comparator-modal">
+    <div class="modal-container comparator-modal-container">
+      <button class="modal-close-btn" title="Cerrar comparador" aria-label="Cerrar comparador">
+        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <div id="comparator-content">
+        <!-- Rellenado dinámicamente por CityComparatorManager -->
+      </div>
+    </div>
+  </div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <!-- Scripts de la aplicación (100% compatibles local y servidor) -->
+  <script src="js/data/cities.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/modal.js"></script>
+  <script src="js/comparator.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
